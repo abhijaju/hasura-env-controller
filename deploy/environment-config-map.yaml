@@ -10,10 +10,6 @@ data:
       "envVars": {
         "env1": "val1",
         "env2": "val2",
-        "env3": "val3",
-        "env4": "val4",
-        "env5": "val5",
-        "env6": "val6",
-        "env7": "val7"
+        "env3": "val3"
       }
     }
