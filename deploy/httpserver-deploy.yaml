@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver
+  namespace: env-controller
+  labels:
+    app: httpserver
+spec:
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 9090
+  selector:
+    app: httpserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpserver
+  namespace: env-controller
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+    spec:
+      containers:
+      - image: abhijaju/httpserver:latest
+        imagePullPolicy: Always
+        name: httpserver
+        env:
+        - name: env1
+          value: oldVal1
+        - name: env2
+          value: oldVal2
+        - name: non-overlapping-env1
+          value: nochange
+        ports:
+        - containerPort: 9090
+---
