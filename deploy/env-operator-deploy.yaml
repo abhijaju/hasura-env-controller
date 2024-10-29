@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: env-operator
+  namespace: env-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-operator
+  namespace: env-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: env-operator
+  template:
+    metadata:
+      labels:
+        app: env-operator
+    spec:
+      serviceAccountName: env-operator
+      containers:
+      - image: abhijaju/operator:latest
+        imagePullPolicy: Always
+        name: env-operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: env-operator
+  namespace: env-controller
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: env-operator
+  namespace: env-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: env-operator
+subjects:
+- kind: ServiceAccount
+  name: env-operator
+  namespace: env-controller
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: env-operator
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "update", "patch", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: env-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: env-operator
+subjects:
+- kind: ServiceAccount
+  name: env-operator
+  namespace: env-controller
+---
